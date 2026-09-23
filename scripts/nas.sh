@@ -34,6 +34,7 @@ chown -R "$CONFIG_USER":"$CONFIG_USER" /srv/nas /mnt/nas 2>/dev/null || true
 chmod -R 775 "$SHARE_DIR"
 
 # Samba base config
+# Samba (smbd uniquement, plus fiable sur Pi)
 SMBCONF="/etc/samba/smb.conf"
 cat <<EOF > "$SMBCONF"
 [global]
@@ -51,8 +52,9 @@ cat <<EOF > "$SMBCONF"
    create mask = 0664
    directory mask = 0775
 EOF
-systemctl restart smbd nmbd
-systemctl enable smbd nmbd
+systemctl restart smbd
+systemctl enable smbd
+systemctl disable nmbd 2>/dev/null || true
 (echo "$CONFIG_PASS"; echo "$CONFIG_PASS") | smbpasswd -s -a "$CONFIG_USER"
 
 # File Browser
